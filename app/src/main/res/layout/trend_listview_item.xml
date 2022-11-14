@@ -13,31 +13,34 @@
         android:scaleType="centerCrop"
         android:layout_marginRight="20dp"
         />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
         <TextView
             android:id="@+id/TV_listTitle_Id"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="这是标题"
-            android:textSize="20dp"
-            android:textColor="#ff0000"/>
+            android:text="This is Author."
+            android:textColor="#ff0000"
+            android:textSize="18dp" />
+
         <TextView
             android:id="@+id/TV_listTime_Id"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="2018-8-28"
-            android:textSize="20dp" />
+            android:text="2018-8-28 14:21"
+            android:textSize="13dp" />
+
         <TextView
             android:id="@+id/TV_listContext_Id"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="显示内容"
-            android:textSize="20dp"
+            android:text="This is message."
             android:textColor="#ff9900"
-            />
+            android:textSize="15dp" />
     </LinearLayout>
 
 </LinearLayout>

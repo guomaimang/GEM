@@ -15,10 +15,11 @@
         <entry key="app/src/main/res/layout/fragment_map.xml" value="0.375" />
         <entry key="app/src/main/res/layout/fragment_notifications.xml" value="0.375" />
         <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.37395833333333334" />
-        <entry key="app/src/main/res/layout/fragment_trend.xml" value="0.375" />
+        <entry key="app/src/main/res/layout/fragment_trend.xml" value="0.3523573200992556" />
         <entry key="app/src/main/res/layout/fragment_upload.xml" value="0.375" />
         <entry key="app/src/main/res/layout/listview_item.xml" value="0.4015625" />
-        <entry key="app/src/main/res/menu/bottom_nav_menu.xml" value="0.375" />
+        <entry key="app/src/main/res/layout/trend_listview_item.xml" value="0.41016387939453125" />
+        <entry key="app/src/main/res/menu/bottom_nav_menu.xml" value="0.2562652587890625" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.3755" />
       </map>
     </option>

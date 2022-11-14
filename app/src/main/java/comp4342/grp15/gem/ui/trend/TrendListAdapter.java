@@ -8,35 +8,39 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
+
 import comp4342.grp15.gem.R;
 
 public class TrendListAdapter extends BaseAdapter{
-    private Context mContext;
-    private LayoutInflater mLayoutInflater;
+    private final Context mContext;
+    private final LayoutInflater mLayoutInflater;
+    private final ArrayList<PostMeta> postMetas;
 
-    public TrendListAdapter(Context context){
+    public TrendListAdapter(Context context, ArrayList<PostMeta> postMetas){
         this.mContext = context;
+        this.postMetas = postMetas;
         mLayoutInflater = LayoutInflater.from(context);
     }
 
     @Override
     public int getCount() {
-        return 10;
+        return postMetas.size();
     }
 
     @Override
-    public Object getItem(int i) {
-        return null;
+    public Object getItem(int position) {
+        return postMetas.get(position);
     }
 
     @Override
-    public long getItemId(int i) {
-        return 0;
+    public long getItemId(int position){
+        return position;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder = null;
+        ViewHolder holder;
         //如果视图为空
         if (convertView == null){
             //此处需要导入包，填写ListView的图标和标题等控件的来源，来自于layout_list_item这个布局文件
@@ -55,9 +59,11 @@ public class TrendListAdapter extends BaseAdapter{
         }
 
         //给控件赋值
-        holder.tvTitle.setText("这是标题！");
+        PostMeta postMeta = postMetas.get(position);
+
+        holder.tvTitle.setText("" + postMeta.getId());
         holder.tvTime.setText("2099-09-09！");
-        holder.tvContext.setText("显示内容！");
+        holder.tvContext.setText(postMeta.getMessage());
         Glide.with(mContext).load("https://static-file.hjm.red/2022/11/13/add995cdf74de.png").into(holder.imageView);
         return convertView;
 
