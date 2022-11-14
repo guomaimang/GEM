@@ -1,7 +1,6 @@
 package comp4342.grp15.gem;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 
 public class webView extends AppCompatActivity {

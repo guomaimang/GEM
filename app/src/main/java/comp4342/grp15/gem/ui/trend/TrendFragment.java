@@ -11,6 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import comp4342.grp15.gem.MainActivity;
 import comp4342.grp15.gem.databinding.FragmentTrendBinding;
 
 public class TrendFragment extends Fragment {
@@ -26,9 +30,13 @@ public class TrendFragment extends Fragment {
         View root = binding.getRoot();
 
         final ListView  listView= binding.trendListview;
+        listView.setAdapter(new TrendListAdapter(getActivity()));
+
         // homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
+
+
 
     @Override
     public void onDestroyView() {
