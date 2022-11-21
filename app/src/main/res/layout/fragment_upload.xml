@@ -39,7 +39,7 @@
         android:capitalize="none"
         android:ems="10"
         android:gravity="start|top"
-        android:hint="Your Message, No more 512 Chars."
+        android:hint="Your Message, At least 10 Chars, No more 256 Chars."
         android:inputType="textMultiLine"
         android:maxLength="512"
         app:layout_constraintEnd_toEndOf="parent"

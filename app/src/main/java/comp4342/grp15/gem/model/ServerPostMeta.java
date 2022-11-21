@@ -1,4 +1,4 @@
-package comp4342.grp15.gem;
+package comp4342.grp15.gem.model;
 
 public class ServerPostMeta {
     private String username;

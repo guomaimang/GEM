@@ -27,6 +27,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
@@ -96,6 +97,7 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+
         return root;
     }
 
@@ -134,8 +136,8 @@ public class ProfileFragment extends Fragment {
                 userNameText.setText(profileViewModel.getUsername());
 
                 Date date = new Date();
-                userLoginTime.setText(date.toString());
-
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                userLoginTime.setText(formatter.format(date));
                 loginButton.setText("LOGOUT");
                 registerButton.setVisibility(View.GONE);
                 editUserName.setVisibility(View.GONE);
@@ -152,7 +154,7 @@ public class ProfileFragment extends Fragment {
 
         // 加载动画
         ProgressDialog progressDialog = new ProgressDialog(getContext());
-        progressDialog.setMessage("正在加载中");
+        progressDialog.setMessage("Loading");
         progressDialog.show();
 
         // get json String from server

@@ -6,8 +6,12 @@ import static android.content.ContentValues.TAG;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
+import android.location.LocationListener;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,7 +21,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,10 +36,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Objects;
 
+import comp4342.grp15.gem.DBController;
 import comp4342.grp15.gem.MainActivity;
 import comp4342.grp15.gem.databinding.FragmentUploadBinding;
-
 
 
 public class UploadFragment extends Fragment {
@@ -41,6 +49,12 @@ public class UploadFragment extends Fragment {
     private ImageView photo;
     private Uri imgUri;
     private Bitmap bitmap;
+    private EditText message;
+    private String location = "null";
+    DBController dbController;
+    SQLiteDatabase writableDatabase;
+    String username = "null";
+    String identifier = "null";
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -48,27 +62,57 @@ public class UploadFragment extends Fragment {
         binding = FragmentUploadBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        // 绑定对象
         photo = binding.uploadPhotoImage;
         photo.setVisibility(View.VISIBLE);
+        message = binding.uploadMessageMuitedittext;
 
-        // 尝试获取权限
+        // 获取mainActivity
         MainActivity mainActivity = (MainActivity) getActivity();
-        photo.setOnClickListener(new ImageView.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                if (mainActivity.checkPermissionAllGranted(new String[]{
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.INTERNET,
-                        Manifest.permission.ACCESS_NETWORK_STATE,
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                })){
-                    dialog();
-                }else {
-                    mainActivity.firstRequestPermissions();
-                }
+
+        // 从数据库获取用户信息
+        dbController = new DBController(requireActivity().getApplicationContext(), "login.db", null, 1);
+        writableDatabase = dbController.getWritableDatabase();
+        Cursor cursor = writableDatabase.rawQuery("select * from user where id == 1", null);
+        while (cursor.moveToNext()) {
+            if (!cursor.getString(1).equals("null")) {
+                // 已经登入
+                username = cursor.getString(1);
+                identifier = cursor.getString(3);
+            } else {
+                // 没有登入
+                Toast.makeText(getContext(), "Please login first!", Toast.LENGTH_SHORT).show();
             }
-        });
+            cursor.close();
+
+            // 监听图片按钮
+            photo.setOnClickListener(new ImageView.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (mainActivity.checkPermissionAllGranted(new String[]{
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.INTERNET,
+                            Manifest.permission.ACCESS_NETWORK_STATE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                    })) {
+                        dialog();
+                    } else {
+                        mainActivity.firstRequestPermissions();
+                    }
+                }
+            });
+
+            // 监听POST按钮
+            Button postButton = binding.uploadPostButton;
+            postButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    doUpload();
+                }
+            });
+        }
+
         return root;
     }
 
@@ -77,7 +121,6 @@ public class UploadFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
 
     private void dialog(){
         String[] choices = {"From Album", "From Camera"};
@@ -91,9 +134,6 @@ public class UploadFragment extends Fragment {
                         }else if (which == 1){
                             //已经有权限，打开相机
                             toCamera();
-                        }
-                        if (bitmap != null){
-                            doUpload();
                         }
                     }
                 });
@@ -178,12 +218,42 @@ public class UploadFragment extends Fragment {
         return Base64.encodeToString(b, Base64.DEFAULT);
     }
 
-    private String doUpload(){
-        Log.d("", bitmapToString());
-        return null;
+    // 上传
+    private void doUpload(){
+        if (username.equals("null")){
+            Toast.makeText(getContext(), "Please Login first!", Toast.LENGTH_SHORT).show();
+            return;
+        } else if (message.getText().toString().length() >= 256 || message.getText().toString().length() <= 10){
+            Toast.makeText(getContext(), "Invalid message length", Toast.LENGTH_SHORT).show();
+            return;
+        }else if (bitmap == null){
+            Toast.makeText(getContext(), "Please select a picture", Toast.LENGTH_SHORT).show();
+            return;
+        }else if (Objects.equals(location, "")){
+            Toast.makeText(getContext(), "Cannot get location", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+
+
     }
 
+    //
+    // 获取地理坐标
+    private LocationListener mLocationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            // 当GPS定位信息发生改变时，更新定位
+            updateShow(location);
+        }
+    };
+
+    
+
+
 }
+
+
 
 
 
