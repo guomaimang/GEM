@@ -10,12 +10,13 @@ import com.bumptech.glide.Glide;
 
 public class TrendDetailActivity extends AppCompatActivity {
 
+    private TextView location;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trend_detail);
         TextView posterName = (TextView) findViewById(R.id.trend_detail_poster);
-        TextView location = (TextView) findViewById(R.id.trend_detail_location);
+        location = (TextView) findViewById(R.id.trend_detail_location);
         TextView post_time =(TextView) findViewById(R.id.trend_detail_post_time);
         TextView message = (TextView)findViewById(R.id.trend_detail_message);
         ImageView image = (ImageView) findViewById(R.id.trend_detail_image);
@@ -25,6 +26,11 @@ public class TrendDetailActivity extends AppCompatActivity {
         post_time.setText("Post time: " + getIntent().getStringExtra("post_time"));
         message.setText("Message: " + getIntent().getStringExtra("message"));
         posterName.setText("Poster: " + getIntent().getStringExtra("username"));
+        parseLocation();
+    }
+
+    private void parseLocation(){
+
     }
 
     public void onBackPressed() {

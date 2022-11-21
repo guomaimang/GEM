@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -285,6 +286,13 @@ public class UploadFragment extends Fragment {
                             // 发送失败
                             progressDialog.dismiss();
                             Toast.makeText(getContext(), responseMessage.getMessage(), Toast.LENGTH_SHORT).show();
+                            if(responseMessage.getStatus().equals("Fail")){
+                                ContentValues values = new ContentValues();
+                                values.put("username", "null");
+                                values.put("password", "null");
+                                values.put("identifier", "null");
+                                mainActivity.getWritableDatabase().update("user", values, "id = 1", null);
+                            }
                         }
                     }
                 },
