@@ -48,10 +48,12 @@
 
     <TextView
         android:id="@+id/upload_location_text"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Your Location:"
+        android:textColor="#DA1414"
+        app:layout_constraintEnd_toEndOf="@+id/upload_photo_image"
         app:layout_constraintStart_toStartOf="@+id/upload_photo_image"
         app:layout_constraintTop_toBottomOf="@+id/upload_photo_image" />
 

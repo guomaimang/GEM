@@ -58,7 +58,6 @@ public class TrendFragment extends Fragment {
             }
         });
 
-
         return root;
     }
 

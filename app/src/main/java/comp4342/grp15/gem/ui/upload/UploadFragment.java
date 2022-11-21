@@ -140,8 +140,9 @@ public class UploadFragment extends Fragment {
                 location = "[" + cursor.getString(4) + "," + cursor.getString(5) + "]";
                 locationTextView.setText("Location: " + location);
             }
-            cursor.close();
         }
+        cursor.close();
+        parseLocation();
 
         return root;
     }
@@ -316,6 +317,41 @@ public class UploadFragment extends Fragment {
                 return json.getBytes(StandardCharsets.UTF_8);
             }
         };
+        requestQueue.add(stringRequest);
+
+    }
+
+    // 解析地址
+    private void parseLocation(){
+        String locationX;
+        String locationY;
+        String point = location;
+        String[] locationArr = point.split(",");
+        if(locationArr.length ==2){
+            locationX = locationArr[0].substring(1);
+            locationY = locationArr[1];
+            locationY = locationY.substring(0,locationY.length()-2);
+        }else {
+            return;
+        }
+
+        // get txt String from server
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,"https://comp4342.hjm.red/loc?X=" + locationX + "&Y=" + locationY,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String s) {
+                        if(!s.equals("Unknown")){
+                            locationTextView.setText("Location: " + s);
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError volleyError) {
+                Toast.makeText(mainActivity.getApplicationContext(), "Networking Error", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         requestQueue.add(stringRequest);
 
     }
