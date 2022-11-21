@@ -1,7 +1,6 @@
 package comp4342.grp15.gem.ui.trend;
 
 import android.app.Application;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
