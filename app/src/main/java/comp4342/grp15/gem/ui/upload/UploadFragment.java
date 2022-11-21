@@ -5,18 +5,12 @@ import static android.content.ContentValues.TAG;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -54,7 +48,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-import comp4342.grp15.gem.DBController;
 import comp4342.grp15.gem.MainActivity;
 import comp4342.grp15.gem.databinding.FragmentUploadBinding;
 import comp4342.grp15.gem.model.ResponseMessage;
@@ -70,12 +63,10 @@ public class UploadFragment extends Fragment {
     private EditText messageEditText;
     private TextView locationTextView;
     private String location = "null";
-    private DBController dbController;
-    private SQLiteDatabase writableDatabase;
     private String username = "null";
     private String identifier = "null";
     private MainActivity mainActivity;
-    private LocationManager locationManager;
+
     private RequestQueue requestQueue;
     private ResponseMessage responseMessage;
 
@@ -97,9 +88,7 @@ public class UploadFragment extends Fragment {
         mainActivity = (MainActivity) getActivity();
 
         // 从数据库获取用户信息
-        dbController = new DBController(requireActivity().getApplicationContext(), "login.db", null, 1);
-        writableDatabase = dbController.getWritableDatabase();
-        Cursor cursor = writableDatabase.rawQuery("select * from user where id == 1", null);
+        Cursor cursor = mainActivity.getReadableDatabase().rawQuery("select * from user where id == 1", null);
         while (cursor.moveToNext()) {
             if (!cursor.getString(1).equals("null")) {
                 // 已经登入
@@ -109,8 +98,8 @@ public class UploadFragment extends Fragment {
                 // 没有登入
                 Toast.makeText(getContext(), "Please login first!", Toast.LENGTH_SHORT).show();
             }
-            cursor.close();
         }
+        cursor.close();
 
         // 监听图片按钮
         photoView.setOnClickListener(new ImageView.OnClickListener() {
@@ -139,9 +128,19 @@ public class UploadFragment extends Fragment {
             }
         });
 
-        // 第一次更新地理位置，并设置监听
-        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        locationUpdate();
+        // 设置用户位置
+        cursor = ((MainActivity) getActivity()).getReadableDatabase().rawQuery("select * from user where id == 1", null);
+        while (cursor.moveToNext()) {
+            if (Objects.equals(cursor.getString(4), "null") || Objects.equals(cursor.getString(5), "null")) {
+                // 无定位
+                Toast.makeText(mainActivity, "Please open location service!", Toast.LENGTH_SHORT).show();
+            } else {
+                // 有定位
+                location = "[" + cursor.getString(4) + "," + cursor.getString(5) + "]";
+                locationTextView.setText("Location: " + location);
+            }
+            cursor.close();
+        }
 
         return root;
     }
@@ -258,7 +257,7 @@ public class UploadFragment extends Fragment {
             Toast.makeText(getContext(), "Please select a picture", Toast.LENGTH_SHORT).show();
             return;
         }else if (Objects.equals(location, "")){
-            Toast.makeText(getContext(), "Cannot get location", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Please open location service!", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -313,37 +312,6 @@ public class UploadFragment extends Fragment {
 
     }
 
-    // 获取地理坐标
-    private final LocationListener mLocationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            // 当GPS定位信息发生改变时，更新定位
-            // 使用监听器，使之自动更新
-            updateShow(location);
-        }
-    };
-
-    // 位置监听设置
-    public void locationUpdate() {
-        // 如果没权限，则需要用户授权
-        if (mainActivity.checkCallingOrSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(getActivity(), "Please allow location service", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        // 第一次通过网络服务定位
-        Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        updateShow(location);
-        // 设置间隔 10 秒获得一次 GPS 定位信息
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20000, 8,mLocationListener);
-    }
-
-    // 更新界面
-    private void updateShow(Location lc) {
-        if (lc != null) {
-            this.location = "[" + lc.getLongitude() + "," +lc.getLatitude() + "]";
-            locationTextView.setText("Your Location: " + this.location);
-        }
-    }
 }
 
 

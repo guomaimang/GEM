@@ -3,7 +3,6 @@ package comp4342.grp15.gem.ui.profile;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,19 +29,16 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-
-import comp4342.grp15.gem.DBController;
+import comp4342.grp15.gem.MainActivity;
 import comp4342.grp15.gem.databinding.FragmentProfileBinding;
-
 import comp4342.grp15.gem.model.ResponseMessage;
 import comp4342.grp15.gem.model.UserInfo;
 
 public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
-    ProfileViewModel profileViewModel;
-    DBController dbController;
-    SQLiteDatabase writableDatabase;
+    private ProfileViewModel profileViewModel;
+    private MainActivity mainActivity;
 
     Button loginButton;
     Button registerButton;
@@ -51,7 +47,6 @@ public class ProfileFragment extends Fragment {
     EditText editUserName;
     EditText editPassword;
 
-    RequestQueue requestQueue;
     ResponseMessage responseMessage;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -62,9 +57,8 @@ public class ProfileFragment extends Fragment {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        requestQueue = Volley.newRequestQueue(getContext());
-
         // 绑定
+        mainActivity = (MainActivity) getActivity();
         loginButton = binding.profileLoginButton;
         registerButton = binding.profileSigninButton;
         userNameText = binding.profileUsernameText;
@@ -108,9 +102,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void resetStatus() {
-        dbController = new DBController(requireActivity().getApplicationContext(), "login.db", null, 1);
-        writableDatabase = dbController.getWritableDatabase();
-        Cursor cursor = writableDatabase.rawQuery("select * from user where id == 1", null);
+        Cursor cursor = mainActivity.getReadableDatabase().rawQuery("select * from user where id == 1", null);
         while (cursor.moveToNext()) {
             String username = cursor.getString(1);
             if (!username.equals("null")) {
@@ -121,28 +113,28 @@ public class ProfileFragment extends Fragment {
                 profileViewModel.setUserName("null");
                 profileViewModel.setLogin(false);
             }
-            cursor.close();
+        }
+        cursor.close();
 
-            if (!profileViewModel.getIsLogin()) {
-                // 用户没有登入
-                userNameText.setText("Not Login.");
-                userLoginTime.setText("Not Login.");
-                loginButton.setText("LOGIN");
-                registerButton.setVisibility(View.VISIBLE);
-                editUserName.setVisibility(View.VISIBLE);
-                editPassword.setVisibility(View.VISIBLE);
-            } else {
-                // 用户登入了
-                userNameText.setText(profileViewModel.getUsername());
+        if (!profileViewModel.getIsLogin()) {
+            // 用户没有登入
+            userNameText.setText("Not Login.");
+            userLoginTime.setText("Not Login.");
+            loginButton.setText("LOGIN");
+            registerButton.setVisibility(View.VISIBLE);
+            editUserName.setVisibility(View.VISIBLE);
+            editPassword.setVisibility(View.VISIBLE);
+        } else {
+            // 用户登入了
+            userNameText.setText(profileViewModel.getUsername());
 
-                Date date = new Date();
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                userLoginTime.setText(formatter.format(date));
-                loginButton.setText("LOGOUT");
-                registerButton.setVisibility(View.GONE);
-                editUserName.setVisibility(View.GONE);
-                editPassword.setVisibility(View.GONE);
-            }
+            Date date = new Date();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            userLoginTime.setText(formatter.format(date));
+            loginButton.setText("LOGOUT");
+            registerButton.setVisibility(View.GONE);
+            editUserName.setVisibility(View.GONE);
+            editPassword.setVisibility(View.GONE);
         }
     }
 
@@ -170,7 +162,7 @@ public class ProfileFragment extends Fragment {
                             values.put("username", editUserName.getText().toString());
                             values.put("password", editPassword.getText().toString());
                             values.put("identifier", responseMessage.getMessage());
-                            writableDatabase.update("user", values, "id = 1", null);
+                            mainActivity.getWritableDatabase().update("user", values, "id = 1", null);
                             resetStatus();
                             progressDialog.dismiss();
                             Toast.makeText(getContext(), "Login Success!", Toast.LENGTH_SHORT).show();
@@ -201,7 +193,7 @@ public class ProfileFragment extends Fragment {
                 return json.getBytes(StandardCharsets.UTF_8);
             }
         };
-        requestQueue.add(stringRequest);
+        mainActivity.getRequestQueue().add(stringRequest);
     }
 
     private void doLogout () {
@@ -209,7 +201,7 @@ public class ProfileFragment extends Fragment {
         values.put("username", "null");
         values.put("password", "null");
         values.put("identifier", "null");
-        writableDatabase.update("user", values, "id = 1", null);
+        mainActivity.getWritableDatabase().update("user", values, "id = 1", null);
         resetStatus();
     }
 
@@ -231,14 +223,8 @@ public class ProfileFragment extends Fragment {
                     public void onResponse(String s) {
                         Gson gson = new Gson();
                         responseMessage = gson.fromJson(s, ResponseMessage.class);
-                        if (!responseMessage.getStatus().equals("Success")) {
-                            // 注册成功
-                            progressDialog.dismiss();
-                            Toast.makeText(getContext(), responseMessage.getMessage(), Toast.LENGTH_SHORT).show();
-                        } else {
-                            progressDialog.dismiss();
-                            Toast.makeText(getContext(), responseMessage.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
+                        progressDialog.dismiss();
+                        Toast.makeText(getContext(), responseMessage.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 },
                 new Response.ErrorListener() {
@@ -261,7 +247,7 @@ public class ProfileFragment extends Fragment {
                 return json.getBytes(StandardCharsets.UTF_8);
             }
         };
-        requestQueue.add(stringRequest);
+        mainActivity.getRequestQueue().add(stringRequest);
     }
 
 }

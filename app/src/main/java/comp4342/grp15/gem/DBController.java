@@ -17,7 +17,7 @@ public class DBController extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // 创建表的SQL语句
-        String table = "create table user(id int,username varchar(13), password varchar(13), identifier varchar(65))";
+        String table = "create table user(id int,username varchar(13), password varchar(13), identifier varchar(65),locationX varchar(63), locationY varchar(63))";
         db.execSQL(table);
     }
 
