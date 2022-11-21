@@ -1,7 +1,6 @@
 package comp4342.grp15.gem.model;
 
 
-
 public class ClientPostMeta {
     private int id;
     private String username;
