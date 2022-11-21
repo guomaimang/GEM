@@ -58,8 +58,6 @@ public class TrendViewModel extends AndroidViewModel {
             }
         });
 
-        Log.d("", "Check Trend");
-
         requestQueue.add(stringRequest);
 
         return mPostMetas;

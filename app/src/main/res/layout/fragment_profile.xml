@@ -10,10 +10,11 @@
 
     <TextView
         android:id="@+id/profile_username_text"
-        android:layout_width="144dp"
-        android:layout_height="24dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
         android:layout_marginTop="4dp"
+        android:text="Not Login."
         android:textAlignment="viewStart"
         android:textSize="20sp"
         app:layout_constraintStart_toEndOf="@+id/profile_avatar"
@@ -23,7 +24,7 @@
         android:id="@+id/profile_avatar"
         android:layout_width="49dp"
         android:layout_height="57dp"
-        android:layout_marginTop="52dp"
+        android:layout_marginTop="56dp"
         android:contentDescription="User Avatar"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,9 +35,10 @@
 
     <TextView
         android:id="@+id/profile_login_time"
-        android:layout_width="100dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
+        android:text="Not Login."
         app:layout_constraintStart_toStartOf="@+id/profile_username_text"
         app:layout_constraintTop_toBottomOf="@+id/profile_username_text" />
 
@@ -72,8 +74,8 @@
 
     <EditText
         android:id="@+id/profile_edittext_username"
-        android:layout_width="214dp"
-        android:layout_height="48dp"
+        android:layout_width="217dp"
+        android:layout_height="51dp"
         android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="Your Username"

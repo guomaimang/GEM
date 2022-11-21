@@ -1,5 +1,6 @@
 package comp4342.grp15.gem.ui.profile;
 
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -17,10 +18,29 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import comp4342.grp15.gem.DBController;
 import comp4342.grp15.gem.databinding.FragmentProfileBinding;
+import comp4342.grp15.gem.model.ClientPostMeta;
+import comp4342.grp15.gem.model.ResponseMessage;
+import comp4342.grp15.gem.model.UserInfo;
 
 public class ProfileFragment extends Fragment {
 
@@ -36,6 +56,9 @@ public class ProfileFragment extends Fragment {
     EditText editUserName;
     EditText editPassword;
 
+    RequestQueue requestQueue;
+    ResponseMessage responseMessage;
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         profileViewModel =
@@ -43,6 +66,8 @@ public class ProfileFragment extends Fragment {
 
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+
+        requestQueue = Volley.newRequestQueue(getContext());
 
         // 绑定
         loginButton = binding.profileLoginButton;
@@ -61,29 +86,23 @@ public class ProfileFragment extends Fragment {
             public void onClick(View view) {
                 if (!profileViewModel.getIsLogin()){
                     // 按钮功能为登入
-                    String identifier = doLogin(editUserName.getText().toString(),editPassword.getText().toString());
-                    if(!identifier.equals("null")){
-                        // 登入成功(登入失败什么也不做)
-                        ContentValues values = new ContentValues();
-                        values.put("username", editUserName.getText().toString());
-                        values.put("password", editPassword.getText().toString());
-                        values.put("identifier", identifier);
-                        writableDatabase.update("user", values, "id = 0", null);
-                        resetStatus();
+                    doLogin(editUserName.getText().toString(),editPassword.getText().toString());
                     }
-                }else {
+                else {
                     // 按钮表示注销
-                    ContentValues values = new ContentValues();
-                    values.put("username", "null");
-                    values.put("password", "null");
-                    values.put("identifier", "null");
-                    writableDatabase.update("user", values, "id = 0", null);
-                    resetStatus();
+                    doLogout();
                 }
             }
         });
 
         // 注册按钮功能
+        registerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                doRegister(editUserName.getText().toString(),editPassword.getText().toString());
+            }
+        });
+
         return root;
     }
 
@@ -103,8 +122,10 @@ public class ProfileFragment extends Fragment {
                 // 已经登入
                 profileViewModel.setUserName(username);
                 profileViewModel.setLogin(true);
+            }else {
+                profileViewModel.setUserName("null");
+                profileViewModel.setLogin(false);
             }
-        }
         cursor.close();
 
         if(!profileViewModel.getIsLogin()){
@@ -124,22 +145,115 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    private String doLogin(String username, String password){
+    private void doLogin(String username, String password){
         if(username.equals("null") || username.equals("") || password.equals("")){
             Toast.makeText(getContext(), "Wrong Username or Password", Toast.LENGTH_SHORT).show();
-            return "null";
+            return;
         }
 
+        // 加载动画
+        ProgressDialog progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("正在加载中");
+        progressDialog.show();
 
+        // get json String from server
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,"https://comp4342.hjm.red/login",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String s) {
+                        Gson gson = new Gson();
+                        responseMessage = gson.fromJson(s,ResponseMessage.class);
+                        if(responseMessage.getStatus().equals("Success")){
+                            // 登入成功
+                            ContentValues values = new ContentValues();
+                            values.put("username", editUserName.getText().toString());
+                            values.put("password", editPassword.getText().toString());
+                            values.put("identifier", responseMessage.getMessage());
+                            writableDatabase.update("user", values, "id = 1", null);
+                            resetStatus();
+                            progressDialog.dismiss();
+                            Toast.makeText(getContext(), "Login Success!", Toast.LENGTH_SHORT).show();
+                        }else{
+                            // 登入失败
+                            progressDialog.dismiss();
+                            Toast.makeText(getContext(), "Wrong Username or Password", Toast.LENGTH_SHORT).show();
+                        }
+                    }},
+                new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError volleyError) {
+                            progressDialog.dismiss();
+                            Toast.makeText(getContext(), "Networking Error", Toast.LENGTH_SHORT).show();
+                        }
+        }){
+            @Override
+            public String getBodyContentType() {
+                return "application/json";
+            }
 
-        Toast.makeText(getContext(), "Wrong Username or Password", Toast.LENGTH_SHORT).show();
-        Log.d("",username);
-        return "null";
+            @Override
+            public byte[] getBody() throws AuthFailureError{
+                Gson gson = new Gson();
+                UserInfo userInfo = new UserInfo(editUserName.getText().toString(), editPassword.getText().toString());
+                String json = gson.toJson(userInfo);
+                return json.getBytes(StandardCharsets.UTF_8);
+            }
+        };
+        requestQueue.add(stringRequest);
     }
 
+    private void doLogout(){
+        ContentValues values = new ContentValues();
+        values.put("username", "null");
+        values.put("password", "null");
+        values.put("identifier", "null");
+        writableDatabase.update("user", values, "id = 1", null);
+        resetStatus();
+    }
 
-    private boolean doRegister(String Username, String Password){
-        return false;
+    private void doRegister(String username, String password){
+        if(username.equals("null") || username.equals("") || password.equals("") || username.length() <= 3 || password.length() <= 6){
+            Toast.makeText(getContext(), "Illegal texts", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 加载动画
+        ProgressDialog progressDialog = new ProgressDialog(getContext());
+        progressDialog.setMessage("Doing Registering...");
+        progressDialog.show();
+
+        // get json String from server
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,"https://comp4342.hjm.red/register",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String s) {
+                        Gson gson = new Gson();
+                        responseMessage = gson.fromJson(s,ResponseMessage.class);
+                        if(!responseMessage.getStatus().equals("Success")){
+                            // 注册成功
+                            progressDialog.dismiss();
+                            Toast.makeText(getContext(), responseMessage.getMessage(), Toast.LENGTH_SHORT).show();
+                        }else{
+                            progressDialog.dismiss();
+                            Toast.makeText(getContext(), responseMessage.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }},
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        progressDialog.dismiss();
+                        Toast.makeText(getContext(), "Networking Error", Toast.LENGTH_SHORT).show();
+                    }
+                }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> map = new HashMap<String, String>();
+                map.put("username", editUserName.getText().toString());
+                map.put("password", editPassword.getText().toString());
+                return map;
+            }
+        };
+        requestQueue.add(stringRequest);
     }
 
 }
