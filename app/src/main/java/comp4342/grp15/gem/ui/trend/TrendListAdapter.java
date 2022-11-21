@@ -10,14 +10,15 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
+import comp4342.grp15.gem.model.ClientPostMeta;
 import comp4342.grp15.gem.R;
 
 public class TrendListAdapter extends BaseAdapter{
     private final Context mContext;
     private final LayoutInflater mLayoutInflater;
-    private final ArrayList<PostMeta> postMetas;
+    private final ArrayList<ClientPostMeta> postMetas;
 
-    public TrendListAdapter(Context context, ArrayList<PostMeta> postMetas){
+    public TrendListAdapter(Context context, ArrayList<ClientPostMeta> postMetas){
         this.mContext = context;
         this.postMetas = postMetas;
         mLayoutInflater = LayoutInflater.from(context);
@@ -59,12 +60,16 @@ public class TrendListAdapter extends BaseAdapter{
         }
 
         //给控件赋值
-        PostMeta postMeta = postMetas.get(position);
+        ClientPostMeta clientPostMeta = postMetas.get(position);
 
-        holder.tvTitle.setText("" + postMeta.getId());
-        holder.tvTime.setText("2099-09-09！");
-        holder.tvContext.setText(postMeta.getMessage());
-        Glide.with(mContext).load("https://static-file.hjm.red/2022/11/13/add995cdf74de.png").into(holder.imageView);
+        holder.tvTitle.setText("" + clientPostMeta.getUsername());
+        holder.tvTime.setText("" + clientPostMeta.getPost_time());
+
+        int lengthMess = Math.min(80, clientPostMeta.getMessage().length());
+        lengthMess = Math.max(1,lengthMess);
+        holder.tvContext.setText("" + clientPostMeta.getMessage().substring(0, lengthMess-1));
+
+        Glide.with(mContext).load("https://comp4342.hjm.red/public/thumbnail/" + clientPostMeta.getPic_name()).into(holder.imageView);
         return convertView;
 
     }

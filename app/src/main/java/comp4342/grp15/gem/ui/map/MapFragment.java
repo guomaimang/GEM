@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -23,8 +24,6 @@ public class MapFragment extends Fragment {
         MapViewModel mapViewModel =
                 new ViewModelProvider(this).get(MapViewModel.class);
 
-
-
         binding = FragmentMapBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
@@ -32,7 +31,8 @@ public class MapFragment extends Fragment {
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setCacheMode(webView.getSettings().LOAD_NO_CACHE);//设置去缓存，防止加载的为上一次加载过的
-        webView.loadUrl("http://comp4342.hjm.red/map.html");
+        webView.setWebViewClient(new WebViewClient());
+        webView.loadUrl("http://comp4342.hjm.red/map?X=19.244&Y=24.12");
         webView.setWebChromeClient(new WebChromeClient(){
             @Override
             public boolean onJsAlert(WebView view, String url, String message, JsResult result) {

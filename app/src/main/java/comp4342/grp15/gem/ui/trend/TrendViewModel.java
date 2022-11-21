@@ -1,8 +1,19 @@
 package comp4342.grp15.gem.ui.trend;
 
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
+import android.app.Application;
+import android.util.Log;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.MutableLiveData;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -10,28 +21,47 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TrendViewModel extends ViewModel {
+import comp4342.grp15.gem.model.ClientPostMeta;
 
-    private MutableLiveData<ArrayList<PostMeta>> mPostMetas;
+public class TrendViewModel extends AndroidViewModel {
+    private static RequestQueue requestQueue;
+    private static MutableLiveData<ArrayList<ClientPostMeta>> mPostMetas;
 
-    public MutableLiveData<ArrayList<PostMeta>> getPostMetas(){
+    public TrendViewModel(@NonNull Application application) {
+        super(application);
+        requestQueue = Volley.newRequestQueue(getApplication().getApplicationContext());
+    }
+
+    public MutableLiveData<ArrayList<ClientPostMeta>> getPostMetas(){
         if(mPostMetas == null){
             mPostMetas = new MutableLiveData<>();
         }
 
         // get json String from server
-        String json = "[{\"id\":11, \"posterName\":\"hnss\", \"message\":\"Trip in England.\" }, { \"id\":8 , \"posterName\":\"guomaimang\", \"message\":\"A rainy day...\" }," +
-                "{ \"id\":3, \"posterName\":\"hongshu\", \"message\":\"This is my new Pet!\" }]";
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,"https://comp4342.hjm.red/trend",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String s) {
 
-        Type listType = new TypeToken<List<PostMeta>>(){}.getType();
-        Gson gson = new Gson();
-        List<PostMeta> lPostMetas = gson.fromJson(json, listType);
-        ArrayList<PostMeta> aPostMetas = new ArrayList<>(lPostMetas);
+                        Type listType = new TypeToken<List<ClientPostMeta>>(){}.getType();
+                        Gson gson = new Gson();
+                        List<ClientPostMeta> lClientPostMetas = gson.fromJson(s, listType);
+                        ArrayList<ClientPostMeta> aClientPostMetas = new ArrayList<>(lClientPostMetas);
 
-        // 先将内容更新到 mPostMetas，再返回 PostMetas
-        mPostMetas.setValue(aPostMetas);
+                        // 先将内容更新到 mPostMetas，再返回 PostMetas
+                        mPostMetas.setValue(aClientPostMetas);
+                    }
+                }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError volleyError) {
+                    Toast.makeText(getApplication().getApplicationContext(), "Cannot get trends.....", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        Log.d("", "Check Trend");
+
+        requestQueue.add(stringRequest);
+
         return mPostMetas;
     }
-
-
 }

@@ -6,17 +6,45 @@
     android:layout_height="match_parent"
     tools:context=".ui.upload.UploadFragment">
 
-    <TextView
-        android:id="@+id/text_notifications"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/upload_post_button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
+        android:text="Post"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.896" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="106dp"
+        android:layout_height="90dp"
+        app:layout_constraintBottom_toTopOf="@+id/upload_post_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.496"
+        tools:src="@drawable/ple_choose_pic" />
+
+    <EditText
+        android:id="@+id/editTextTextMultiLine"
+        android:layout_width="317dp"
+        android:layout_height="159dp"
+        android:capitalize="none"
+        android:ems="10"
+        android:gravity="start|top"
+        android:hint="Your Message, No more 512 Chars."
+        android:inputType="textMultiLine"
+        android:maxLength="512"
+        app:layout_constraintBottom_toTopOf="@+id/upload_post_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.493"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.201" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
