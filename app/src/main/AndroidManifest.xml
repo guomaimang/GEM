@@ -33,6 +33,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="comp4342.grp15.gem.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            tools:ignore="MissingClass"
+            tools:replace="android:authorities">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths_public"
+                tools:replace="android:resource" />
+        </provider>
+
     </application>
 
 </manifest>

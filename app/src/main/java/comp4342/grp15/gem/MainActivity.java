@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
                         Manifest.permission.INTERNET,
                         Manifest.permission.ACCESS_NETWORK_STATE,
                         Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.CAMERA
                 }
         );
 
@@ -104,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
                         Manifest.permission.INTERNET,
                         Manifest.permission.ACCESS_NETWORK_STATE,
                         Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.CAMERA
                 },
                 MY_PERMISSION_REQUEST_CODE
         );
@@ -141,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 检查是否拥有指定的所有权限
      */
-    private boolean checkPermissionAllGranted(String[] permissions) {
+    public boolean checkPermissionAllGranted(String[] permissions) {
         for (String permission : permissions) {
             if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
                 // 只要有一个权限没有被授予, 则直接返回 false
