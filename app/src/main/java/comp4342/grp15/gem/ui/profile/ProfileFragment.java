@@ -84,11 +84,10 @@ public class ProfileFragment extends Fragment {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!profileViewModel.getIsLogin()){
+                if (!profileViewModel.getIsLogin()) {
                     // 按钮功能为登入
-                    doLogin(editUserName.getText().toString(),editPassword.getText().toString());
-                    }
-                else {
+                    doLogin(editUserName.getText().toString(), editPassword.getText().toString());
+                } else {
                     // 按钮表示注销
                     doLogout();
                 }
@@ -99,7 +98,7 @@ public class ProfileFragment extends Fragment {
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                doRegister(editUserName.getText().toString(),editPassword.getText().toString());
+                doRegister(editUserName.getText().toString(), editPassword.getText().toString());
             }
         });
 
@@ -112,41 +111,47 @@ public class ProfileFragment extends Fragment {
         binding = null;
     }
 
-    private void resetStatus(){
+    private void resetStatus() {
         dbController = new DBController(requireActivity().getApplicationContext(), "login.db", null, 1);
         writableDatabase = dbController.getWritableDatabase();
-        Cursor cursor = writableDatabase.rawQuery("select * from user where id == 1",null);
-        while (cursor.moveToNext()){
+        Cursor cursor = writableDatabase.rawQuery("select * from user where id == 1", null);
+        while (cursor.moveToNext()) {
             String username = cursor.getString(1);
-            if (!username.equals("null")){
+            if (!username.equals("null")) {
                 // 已经登入
                 profileViewModel.setUserName(username);
                 profileViewModel.setLogin(true);
-            }else {
+            } else {
                 profileViewModel.setUserName("null");
                 profileViewModel.setLogin(false);
             }
-        cursor.close();
+            cursor.close();
 
-        if(!profileViewModel.getIsLogin()){
-            // 用户没有登入
-            userNameText.setText("Not Login.");
-            userLoginTime.setText("Not Login.");
-            loginButton.setText("LOGIN");
-        }else{
-            // 用户登入了
-            userNameText.setText(profileViewModel.getUsername());
-            Date date = new Date();
-            userLoginTime.setText(date.toString());
-            loginButton.setText("LOGOUT");
-            registerButton.setVisibility(View.GONE);
-            editUserName.setVisibility(View.GONE);
-            editPassword.setVisibility(View.GONE);
+            if (!profileViewModel.getIsLogin()) {
+                // 用户没有登入
+                userNameText.setText("Not Login.");
+                userLoginTime.setText("Not Login.");
+                loginButton.setText("LOGIN");
+                registerButton.setVisibility(View.VISIBLE);
+                editUserName.setVisibility(View.VISIBLE);
+                editPassword.setVisibility(View.VISIBLE);
+            } else {
+                // 用户登入了
+                userNameText.setText(profileViewModel.getUsername());
+
+                Date date = new Date();
+                userLoginTime.setText(date.toString());
+
+                loginButton.setText("LOGOUT");
+                registerButton.setVisibility(View.GONE);
+                editUserName.setVisibility(View.GONE);
+                editPassword.setVisibility(View.GONE);
+            }
         }
     }
 
-    private void doLogin(String username, String password){
-        if(username.equals("null") || username.equals("") || password.equals("")){
+    private void doLogin (String username, String password){
+        if (username.equals("null") || username.equals("") || password.equals("")) {
             Toast.makeText(getContext(), "Wrong Username or Password", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -157,13 +162,13 @@ public class ProfileFragment extends Fragment {
         progressDialog.show();
 
         // get json String from server
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,"https://comp4342.hjm.red/login",
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://comp4342.hjm.red/login",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String s) {
                         Gson gson = new Gson();
-                        responseMessage = gson.fromJson(s,ResponseMessage.class);
-                        if(responseMessage.getStatus().equals("Success")){
+                        responseMessage = gson.fromJson(s, ResponseMessage.class);
+                        if (responseMessage.getStatus().equals("Success")) {
                             // 登入成功
                             ContentValues values = new ContentValues();
                             values.put("username", editUserName.getText().toString());
@@ -173,26 +178,27 @@ public class ProfileFragment extends Fragment {
                             resetStatus();
                             progressDialog.dismiss();
                             Toast.makeText(getContext(), "Login Success!", Toast.LENGTH_SHORT).show();
-                        }else{
+                        } else {
                             // 登入失败
                             progressDialog.dismiss();
                             Toast.makeText(getContext(), "Wrong Username or Password", Toast.LENGTH_SHORT).show();
                         }
-                    }},
+                    }
+                },
                 new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError volleyError) {
-                            progressDialog.dismiss();
-                            Toast.makeText(getContext(), "Networking Error", Toast.LENGTH_SHORT).show();
-                        }
-        }){
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        progressDialog.dismiss();
+                        Toast.makeText(getContext(), "Networking Error", Toast.LENGTH_SHORT).show();
+                    }
+                }) {
             @Override
             public String getBodyContentType() {
                 return "application/json";
             }
 
             @Override
-            public byte[] getBody() throws AuthFailureError{
+            public byte[] getBody() throws AuthFailureError {
                 Gson gson = new Gson();
                 UserInfo userInfo = new UserInfo(editUserName.getText().toString(), editPassword.getText().toString());
                 String json = gson.toJson(userInfo);
@@ -202,7 +208,7 @@ public class ProfileFragment extends Fragment {
         requestQueue.add(stringRequest);
     }
 
-    private void doLogout(){
+    private void doLogout () {
         ContentValues values = new ContentValues();
         values.put("username", "null");
         values.put("password", "null");
@@ -211,8 +217,8 @@ public class ProfileFragment extends Fragment {
         resetStatus();
     }
 
-    private void doRegister(String username, String password){
-        if(username.equals("null") || username.equals("") || password.equals("") || username.length() <= 3 || password.length() <= 6){
+    private void doRegister (String username, String password){
+        if (username.equals("null") || username.equals("") || password.equals("") || username.length() <= 3 || password.length() <= 6) {
             Toast.makeText(getContext(), "Illegal texts", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -223,34 +229,40 @@ public class ProfileFragment extends Fragment {
         progressDialog.show();
 
         // get json String from server
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,"https://comp4342.hjm.red/register",
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, "https://comp4342.hjm.red/register",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String s) {
                         Gson gson = new Gson();
-                        responseMessage = gson.fromJson(s,ResponseMessage.class);
-                        if(!responseMessage.getStatus().equals("Success")){
+                        responseMessage = gson.fromJson(s, ResponseMessage.class);
+                        if (!responseMessage.getStatus().equals("Success")) {
                             // 注册成功
                             progressDialog.dismiss();
                             Toast.makeText(getContext(), responseMessage.getMessage(), Toast.LENGTH_SHORT).show();
-                        }else{
+                        } else {
                             progressDialog.dismiss();
                             Toast.makeText(getContext(), responseMessage.getMessage(), Toast.LENGTH_SHORT).show();
                         }
-                    }},
+                    }
+                },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         progressDialog.dismiss();
                         Toast.makeText(getContext(), "Networking Error", Toast.LENGTH_SHORT).show();
                     }
-                }){
+                }) {
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> map = new HashMap<String, String>();
-                map.put("username", editUserName.getText().toString());
-                map.put("password", editPassword.getText().toString());
-                return map;
+            public String getBodyContentType() {
+                return "application/json";
+            }
+
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                Gson gson = new Gson();
+                UserInfo userInfo = new UserInfo(editUserName.getText().toString(), editPassword.getText().toString());
+                String json = gson.toJson(userInfo);
+                return json.getBytes(StandardCharsets.UTF_8);
             }
         };
         requestQueue.add(stringRequest);
