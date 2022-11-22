@@ -258,7 +258,7 @@ public class UploadFragment extends Fragment {
         }else if (bitmap == null){
             Toast.makeText(getContext(), "Please select a picture", Toast.LENGTH_SHORT).show();
             return;
-        }else if (Objects.equals(location, "")){
+        }else if (Objects.equals(location, "") || Objects.equals(location, "null")){
             Toast.makeText(getContext(), "Please open location service!", Toast.LENGTH_SHORT).show();
             return;
         }
