@@ -2,9 +2,8 @@ import { navbar } from "vuepress-theme-hope";
 
 export default navbar([
   "/",
-  { text: "IDEA", icon: "creative", link: "#" },
-  { text: "小组成员", icon: "people", link: "/task/people.html" },
-  { text: "项目解读", icon: "alias", link: "/task/" },
+  { text: "Hongshu", icon: "people", link: "https://guomaimang.github.io/myself.html" },
+  { text: "xyliax", icon: "people", link: "https://blog.peiyuxing.xyz/" },
   { text: "文档修订", icon: "edit", link: "/faq/edit.html" },
 
 
