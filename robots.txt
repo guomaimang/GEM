@@ -2,4 +2,4 @@
 User-agent:*
 Disallow:
 
-Sitemap: https://guomaimang.github.io/GEM/sitemap.xml
+Sitemap: https://guomaimang.github.io/GEM/GEM/sitemap.xml
