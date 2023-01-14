@@ -6,7 +6,7 @@ export default defineUserConfig({
   title: "GEM Project",
   description: "Mobile Computing Group Project Wiki",
 
-  base: "/",
+  base: "/GEM",
 
   theme,
 });
